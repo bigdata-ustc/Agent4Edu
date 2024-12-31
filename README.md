@@ -1,6 +1,6 @@
 # Agent4Edu
 
-[![Project Demonstrate Video](Agent4Edu-Project.png)](Agent4Edu-demo-video-2024-12-31.mov)
+[![Project Demonstrate Video](Agent4Edu-project.png)](Agent4Edu-demo-video-2024-12-31.mov)
 
 
 Authors
