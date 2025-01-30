@@ -2,7 +2,7 @@
 
 Authors
 ---
-- Weibo Gao ([Homepage](home.ustc.edu.cn/~weibogao))
+- Weibo Gao ([Homepage](http://home.ustc.edu.cn/~weibogao))
 - Qi Liu
 - Zhenya Huang
 
