@@ -8,4 +8,6 @@ Authors
 
 Poster
 ---
-![Poster](./Agent4Edu-poster.png)
+<img src="./Agent4Edu-poster.png" width="50%" />
+
+[Download Poster PDF](./Agent4Edu-poster.pdf)
