@@ -6,6 +6,6 @@ Authors
 - Qi Liu
 - Zhenya Huang
 
-<!-- Poster
+Poster
 ---
-![Poster](./[WeiboGao]-CIBD2024-Agent4Edu.jpg) --!>
+![Poster](./Agent4Edu-poster.png)
