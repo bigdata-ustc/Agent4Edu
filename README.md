@@ -1,7 +1,10 @@
-# Agent4Edu
+<img width="870" alt="image" src="https://github.com/user-attachments/assets/2041c803-8059-4de4-992b-fed6b76b9357" />
 
 Paper Information
 ---
+
+Title: Agent4Edu: Generating Learner Response Data by Generative Agents for Intelligent Education Systems
+
 arXiv: https://arxiv.org/pdf/2501.10332
 
 Authors:
@@ -11,6 +14,13 @@ Authors:
 
 Presentation @AAAI-2025
 ---
+
+- Session: Applications 5
+- LOCATION: 115 A
+- Time: Friday February 28, 11:15am-12:30pm
+- Paper ID: 1539
+- Paper Title: Agent4Edu: Generating Learner Response Data by Generative Agents for Intelligent Education Svstems
+
 <img width="1396" alt="image" src="https://github.com/user-attachments/assets/ea64781e-87ab-43e5-affb-192f03c1f054" />
 
 
