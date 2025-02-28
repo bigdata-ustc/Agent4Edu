@@ -22,7 +22,7 @@ Authors:
 Presentation @AAAI-2025
 ---
 
-Thanks to @Guanhao for giving the live presentation on my behalf at AAAI. Feel free to interact with him on-site or email the first author (Weibo Gao) at weibogao@mail.ustc.edu.cn.
+Thanks to [Guanhao](@ghzha0) for giving the live presentation on my behalf at AAAI. Feel free to interact with him on-site or email the first author (Weibo Gao) at weibogao@mail.ustc.edu.cn.
 
 Our presentation information is as follows:
 
