@@ -15,13 +15,17 @@ Authors:
 Presentation @AAAI-2025
 ---
 
+Thanks to @Guanhao for giving the live presentation on my behalf at AAAI. Feel free to interact with him on-site or email the first author (Weibo Gao) at weibogao@mail.ustc.edu.cn.
+
+Our presentation information is as follows:
+
 - Session: Applications 5
 - LOCATION: 115 A
 - Time: Friday February 28, 11:15am-12:30pm
 - Paper ID: 1539
 - Paper Title: Agent4Edu: Generating Learner Response Data by Generative Agents for Intelligent Education Svstems
 
-<img width="1396" alt="image" src="https://github.com/user-attachments/assets/ea64781e-87ab-43e5-affb-192f03c1f054" />
+<img width="1395" alt="image" src="https://github.com/user-attachments/assets/bcf5a445-4749-49a9-bd8f-391e93266522" />
 
 
 Poster
