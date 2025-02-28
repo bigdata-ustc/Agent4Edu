@@ -5,7 +5,7 @@ Paper Information
 
 Title: Agent4Edu: Generating Learner Response Data by Generative Agents for Intelligent Education Systems
 
-arXiv: https://arxiv.org/pdf/2501.10332
+Paper: https://arxiv.org/pdf/2501.10332
 
 Authors:
 - Weibo Gao (The First Author)
