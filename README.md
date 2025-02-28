@@ -8,9 +8,16 @@ Title: Agent4Edu: Generating Learner Response Data by Generative Agents for Inte
 arXiv: https://arxiv.org/pdf/2501.10332
 
 Authors:
-- Weibo Gao ([Homepage](http://home.ustc.edu.cn/~weibogao))
-- Qi Liu
-- Zhenya Huang
+- Weibo Gao (The First Author)
+  - Homepage: http://home.ustc.edu.cn/~weibogao
+  - Email: weibogao@mail.ustc.edu.cn
+  - X: @webbobpaco
+  - WeChat: gaoweibo1997
+  - Weibo Gao is currently on the job market in the research area of LLM-based Agent and User Modeling. Please contact him if you are interested.
+
+- Qi Liu (Corresponding Author)
+  - Homepage: http://staff.ustc.edu.cn/~qiliuql/
+  - Email: qiliuql@ustc.edu.cn
 
 Presentation @AAAI-2025
 ---
