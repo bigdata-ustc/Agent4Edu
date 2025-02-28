@@ -25,7 +25,7 @@ Application Website
 ---
 We have developed a website for interactive learner practice simulation, integrated with Agent4Edu.
 
-<img width="417" alt="image" src="https://github.com/user-attachments/assets/a2b502d9-b6ce-41ab-9c3e-5bed127a3932" />
+<img alt="image" src="https://github.com/user-attachments/assets/a2b502d9-b6ce-41ab-9c3e-5bed127a3932" />
 
 The website is currently in internal testing and will be launched soon. The full code and data will be released on the website.
 
