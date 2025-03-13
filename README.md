@@ -1,8 +1,10 @@
 <img width="870" alt="image" src="https://github.com/user-attachments/assets/2041c803-8059-4de4-992b-fed6b76b9357" />
 
 
-## Note: Weibo Gao 将在赶完毕业论文（2025年3月底）后，立刻更新本项目！
-
+Thank you for your attention!
+---
+- [In English] Weibo Gao will update this project as soon as he finishes his dissertation by the end of March 2025!
+- [In Chinese] 高维博将在完成毕业论文（2025年3月底）后，立刻更新本项目！
 
 Paper Information
 ---
