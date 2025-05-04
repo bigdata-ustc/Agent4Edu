@@ -58,6 +58,8 @@ The website is currently in internal testing and will be launched soon. The full
 
 Please follow our GitHub project for updates~
 
+Temporary code: https://github.com/EduHub-online/Agent4Edu-Model/tree/main/Agent4Edu
+
 BibTxt
 ---
 ```
