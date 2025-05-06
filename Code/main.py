@@ -5,8 +5,11 @@ from memory import Memory
 from action import AgentAction
 from utils import load_json, save_json
 
-async def run_for_student(student_id):
-    logs = load_json(f"{DATA_PATH}/stu_logs.json")[student_id]['logs']
+async def run_for_student(student_index):
+    print(student_index)
+    all_logs = load_json(f"{DATA_PATH}/stu_logs.json")
+    logs = all_logs[student_index]['logs']
+    student_id = all_logs[student_index]['user_id']
     KCG = load_json(f"{DATA_PATH}/kcg.json")
     know_course_list = load_json(f"{DATA_PATH}/know_course_list.json")
     know_name = load_json(f"{DATA_PATH}/know_name_list.json")
@@ -23,11 +26,11 @@ async def run_for_student(student_id):
     save_json(f"{RESULT_PATH}/{student_id}_results.json", results)
 
 async def main():
-    # students = range(1)
-    user_idx_start = 0
-    user_idx_end = 1
-    agent_id_list = load_json(f"{DATA_PATH}/agent_id_list.json")
-    students = agent_id_list[user_idx_start:user_idx_end]
+    students = range(1)
+    # user_idx_start = 0
+    # user_idx_end = 1
+    # agent_id_list = load_json(f"{DATA_PATH}/agent_id_list.json")
+    # students = agent_id_list[user_idx_start:user_idx_end]
     
     await asyncio.gather(*[run_for_student(s) for s in students])
 
