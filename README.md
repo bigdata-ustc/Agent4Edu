@@ -3,7 +3,7 @@
 
 Thank you for your attention!
 ---
-- 2025-05-10: The code is being continuously updated, and the irt and dneuralcdm tools will be uploaded soon.
+- 2025-05-10: The code is being continuously updated, and the IRT and DNeuralCDM tools will be uploaded soon.
 - 2025-03-10: Upload the presentation slide. [[Download Slide PDF](./Agent4Edu-Slide_web.pdf)]
 - 2025-03-10: Note: [In English] Weibo Gao will update this project as soon as he finishes his dissertation by the end of March 2025! [In Chinese] 高维博将在完成毕业论文（2025年3月底）后，立刻更新本项目！
 
