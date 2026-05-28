@@ -298,9 +298,12 @@ If you use this repository, please cite Agent4Edu:
 
 ```bibtex
 @inproceedings{gao2025agent4edu,
-  title={Agent4Edu: Generating Learner Response Data by Generative Agents for Intelligent Education Systems},
+  title={Agent4edu: Generating learner response data by generative agents for intelligent education systems},
   author={Gao, Weibo and Liu, Qi and Yue, Linan and Yao, Fangzhou and Lv, Rui and Zhang, Zheng and Wang, Hao and Huang, Zhenya},
   booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={39},
+  number={22},
+  pages={23923--23932},
   year={2025}
 }
 ```
