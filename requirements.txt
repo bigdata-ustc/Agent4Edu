@@ -1,0 +1,4 @@
+numpy>=1.23
+torch>=2.0
+scikit-learn>=1.0
+openai>=1.0

@@ -1,152 +1,170 @@
-import openai
-from openai import OpenAI
-from config import OPENAI_API_KEY, SIM_PARAMS
+import re
+from typing import Any
+
 from llm_client import LLMClient
-
-class AgentAction:
-    """
-    Action Module (§4.1.4.2)
-    Task1~Task4 模拟，并调用 Memory 的检索、写入与反思
-    """
-    def __init__(self, profile, memory):
-        self.profile = profile
-        self.memory = memory
-        self.llm = LLMClient()
+from memory import Memory
+from profile import Profile
+from utils import normalize_concept
 
 
-    def _call_llm(self, messages):
-        print (messages)
-        return self.llm.call(messages)
+class Action:
+    """Action module: generate and parse four learner-simulation tasks."""
 
-    def simulate_step(self, practice, time_step, similarity_fn):
-        # 1. Memory Retrieval
-        short_mem = self.memory.retrieve_short()
-        long_mem = self.memory.retrieve_long()
+    def __init__(self, llm: LLMClient | None = None):
+        self.llm = llm or LLMClient()
 
-        # 2. Build prompt: include profile + short-term + long-term memories
-        prompt = self._build_prompt(practice, short_mem, long_mem)
-        messages = [
-            {'role': 'system', 'content': self.profile.build_prompt()},
-            {'role': 'user', 'content': prompt}
-        ]
+    def simulate_practice(self, profile: Profile, memory: Memory, practice: dict[str, Any], step: int) -> dict[str, Any]:
+        true_concept = normalize_concept(practice["know_name"])
+        short_memory = memory.retrieve_short()
+        long_memory = memory.retrieve_long(current_concept=true_concept, time_step=step)
+        options = self._concept_options(memory, true_concept, seed=step + memory.student_id)
 
-        # 3. LLM 生成 Task1~Task4
-        resp = self._call_llm(messages)
+        system_prompt = profile.build_prompt() + "\nThe information above is your # profile #."
+        user_prompt = self._build_action_prompt(practice, short_memory, long_memory, options)
+        response = self.llm.call([
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ])
+        parsed = self._parse_tasks(response)
 
-        # 4. 解析结果
-        ans = {}
-        for i in range(1, 5):
-            tag = f'Task{i}:'
-            if tag in resp:
-                ans[f'task{i}'] = resp.split(tag)[1].split('\n')[0].strip()
+        task_scores = self._score_tasks(practice, parsed)
+        corrective = memory.reflect_corrective(practice, parsed)
+        reflection = self.llm.call([
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": Memory.reflection_instruction(corrective)},
+        ])
 
-        # 5. Memory Writing: 写入 factual
-        record = [
-            practice['exer_content'],
-            practice['know_name'],
-            practice['score'],
-            1
-        ]
-        self.memory.write_factual(record)
+        record = [practice.get("exer_content", ""), true_concept, int(practice.get("score", 0)), 1]
+        if memory is not None:
+            memory.reinforce(record)
+            memory.update_practiced_knowledge(true_concept)
+            memory.write_long_summary(reflection)
+            memory.forget(step)
 
-        # 6. Memory Reinforcement & Long-term 更新
-        # sims = similarity_fn(record)
-        if SIM_PARAMS['learning_effect'] == 'yes':
-            self.memory.reinforce(record)
+        return {
+            "exercise_id": practice.get("exer_id"),
+            "true_score": int(practice.get("score", 0)),
+            "true_concept": true_concept,
+            "concept_options": options,
+            "prompt": user_prompt,
+            "raw_response": response,
+            "parsed_response": parsed,
+            "task_scores": task_scores,
+            "reflection": reflection,
+        }
 
-        # 7. Forgetting
-        if SIM_PARAMS['forgetting_effect'] == 'yes':
-            self.memory.forget(time_step)
+    def _concept_options(self, memory: Memory, true_concept: str, seed: int) -> list[str]:
+        distractors = memory.relation_graph.sample_distractors(true_concept, k=2, seed=seed)
+        return [true_concept] + distractors
 
-        # 8. Update Short-term
-        self.memory.retrieve_short()
-
-        # 9. Memory Reflection
-        # 9a. Corrective Reflection
-        corrective = self.memory.reflect_corrective(practice, ans)
-        # 9b. Summary Reflection
-        reflect = self.memory.reflect_summary(corrective)
-        
-        messages.append({"role": "assistant",
-                         "content": resp})
-        messages.append({"role": "user",
-                         "content": reflect})
-        summary = self._call_llm(messages)
-        
-        self.memory.write_long_summary(summary)
-        self.memory.write_know(practice)
-
-        # 10. 返回
-        return ans, resp, corrective, summary
-
-    def _build_prompt(self, practice, short_mem, long_mem):
-        """
-        构建符合论文 Task1~Task4 要求的 Prompt，依次包括：
-        1. Profile 提示
-        2. Short-term Memory 检索结果
-        3. Long-term Memory 检索结果 (强化事实、知识熟练度、学习状态)
-        4. 练习内容与四项任务说明
-        """
-        prompt = (
-            f"Recommended Exercise:\n"
-            f"- Textual Content: {practice['exer_content']}\n"
-            f"- Knowledge Concept (true): {practice['know_name']}\n"
-        )
-
-        # Task1: Cognition-driven Action 提示
-        prompt += (
-            "\nTask 1: Based on your Profile and Knowledge Proficiency, "
-            "decide whether you want to attempt this exercise. "
-            "If too difficult, output 'No'; otherwise, output 'Yes'.\n"
-        )
-
-        # 短期记忆展示
-        if short_mem:
-            prompt += "\nYour Short-term Memory (recent facts):\n"
-            for idx, r in enumerate(short_mem, 1):
-                prompt += (
-                    f" Record {idx}: Content='{r[0]}', Concept={r[1]}, Correct={r[2]}\n"
+    def _build_action_prompt(
+        self,
+        practice: dict[str, Any],
+        short_memory: list[list[Any]],
+        long_memory: dict[str, Any],
+        concept_options: list[str],
+    ) -> str:
+        chunks: list[str] = []
+        if short_memory:
+            chunks.append("I will give you recent practice records as # Recent Facts # below.")
+            for idx, item in enumerate(short_memory, start=1):
+                result = "rightly" if int(item[2]) == 1 else "wrongly"
+                chunks.append(
+                    f"Record{idx}: You {result} answered an exercise.\n"
+                    f"- # Textual Content #: {item[0]}\n"
+                    f"- # Knowledge Concept #: {item[1]}"
                 )
-            prompt += "\n"
+            chunks.append("The information above is your # short-term memory #.")
 
-        # Task2: 概念识别提示
-        prompt += (
-            "Task 2: Identify the knowledge concept tested by this exercise. "
-            "Choose one from the following options:\n"
-        )
-        options = [practice['know_name']] + long_mem.get('practiced_knowledge', [])[:2]
-        for opt in options:
-            prompt += f" - {opt}\n"
-        prompt += "Only output the concept name.\n"
+        sig_facts = long_memory.get("significant_facts", [])
+        if sig_facts:
+            chunks.append("I will give you important reinforced records as # Reinforced Facts # below.")
+            for idx, item in enumerate(sig_facts, start=1):
+                result = "rightly" if int(item[2]) == 1 else "wrongly"
+                chunks.append(
+                    f"Record{idx}: You {result} answered an exercise.\n"
+                    f"- # Textual Content #: {item[0]}\n"
+                    f"- # Knowledge Concept #: {item[1]}"
+                )
 
-        # 强化事实与学习状态
-        if long_mem.get('significant_facts'):
-            prompt += "\nYour Long-term Memory (reinforced facts):\n"
-            for idx, f in enumerate(long_mem['significant_facts'], 1):
-                prompt += f" Record {idx}: Concept={f[1]}, ReinforcedTimes={f[3]}\n"
-        if long_mem.get('learning_status'):
-            prompt += (
-                f"\nYour current Learning Status Summary: "
-                f"{long_mem['learning_status'][-1]}\n"
-            )
+        kp = long_memory.get("knowledge_proficiency", [])
+        if kp:
+            chunks.append("Your current # Knowledge Proficiency # is:")
+            for row in kp:
+                if row.get("value") is None:
+                    chunks.append(f"- {row['concept']}: unknown")
+                else:
+                    chunks.append(f"- {row['concept']}: {row['level']} ({row['value']:.4f})")
 
-        # Task3: 解题思路与答案
-        prompt += (
-            "\nTask 3: Propose a concise problem-solving idea based on your Profile and Memories, "
-            "then give a final answer.\n"
-        )
-        
-        # Task4: 正确率预测
-        prompt += (
-            "\nTask 4: Predict whether you will answer correctly ('Yes' or 'No') based on the idea.\n"
-        )
+        status = long_memory.get("learning_status", [])
+        if status:
+            chunks.append("Your current # Learning Status # is summarized as:")
+            chunks.append(str(status[-1]))
+        if sig_facts or kp or status:
+            chunks.append("The information above is your # long-term memory #.")
 
-        # 输出格式说明
-        prompt += (
-            "\nOutput format exactly as:\n"
-            "Task1: <Yes/No>\n"
-            "Task2: <concept>\n"
-            "Task3: <your idea and final answer>\n"
-            "Task4: <Yes/No>\n"
+        question = (
+            "Currently, you start to answer the recommended exercise. Its content information is as follows:\n\n"
+            f"# Textual Content #: {practice.get('exer_content', '')}\n\n"
+            f"# Options #: {practice.get('exer_option', '')}\n"
+            f"# Reference Answer #: {practice.get('exer_answer', '')}\n"
+            f"# Analysis #: {practice.get('exer_analysis', '')}\n"
         )
-        return prompt
+        chunks.append(question)
+        chunks.append("To answer this exercise, please complete the following four tasks in sequence:")
+        chunks.append(
+            "Task 1 is to decide whether to attempt the recommended problem based on your ability in Profile "
+            "and knowledge proficiency in Long-term Memory. If you consider the problem too difficult, output \"No\"; otherwise output \"Yes\". "
+            "Regardless of your choice, the subsequent tasks will still be executed."
+        )
+        chunks.append("Task 2 is to choose one knowledge concept tested by this exercise from the following three options:")
+        chunks.extend([f"- {c}" for c in concept_options])
+        chunks.append("Only output the knowledge concept and do not output any other information for Task 2.")
+        chunks.append(
+            "Task 3 is to design a short problem-solving idea for this question based on your profile, memory and learning status, "
+            "and then give a final answer. Your response should align with your profile, memory, and past performance."
+        )
+        chunks.append(
+            "Task 4 is to estimate whether you can correctly solve this problem based on your profile, learning records, "
+            "learning status, and problem-solving idea. If you can correctly solve it, answer \"Yes\"; otherwise answer \"No\"."
+        )
+        chunks.append(
+            "Output exactly in this format:\n"
+            "Task1: <answer for task1>\n"
+            "Task2: <answer for task2>\n"
+            "Task3: <answer for task3>\n"
+            "Task4: <answer for task4>"
+        )
+        return "\n\n".join(chunks)
+
+    @staticmethod
+    def _parse_tasks(text: str) -> dict[str, str]:
+        normalized = text
+        normalized = re.sub(r"(?i)task\s*1\s*:", "Task1:", normalized)
+        normalized = re.sub(r"(?i)task\s*2\s*:", "Task2:", normalized)
+        normalized = re.sub(r"(?i)task\s*3\s*:", "Task3:", normalized)
+        normalized = re.sub(r"(?i)task\s*4\s*:", "Task4:", normalized)
+        out: dict[str, str] = {}
+        for name, next_name in [("task1", "Task2:"), ("task2", "Task3:"), ("task3", "Task4:"), ("task4", None)]:
+            label = name.capitalize().replace("Task", "Task")
+            start_token = label + ":"
+            if start_token not in normalized:
+                out[name] = ""
+                continue
+            part = normalized.split(start_token, 1)[1]
+            if next_name and next_name in part:
+                part = part.split(next_name, 1)[0]
+            out[name] = part.strip().strip('"').strip()
+        return out
+
+    @staticmethod
+    def _score_tasks(practice: dict[str, Any], ans: dict[str, str]) -> dict[str, int]:
+        score = int(practice.get("score", 0))
+        true_concept = normalize_concept(practice.get("know_name", ""))
+        task1 = normalize_concept(ans.get("task1", ""))
+        task2 = normalize_concept(ans.get("task2", ""))
+        task4 = normalize_concept(ans.get("task4", ""))
+        flag1 = int((task1 == "yes" and score == 1) or (task1 == "no" and score == 0))
+        flag2 = int(task2 == true_concept)
+        flag4 = int(((task4 == "yes" and score == 1) or (task4 == "no" and score == 0)) and flag1 == 1)
+        return {"task1": flag1, "task2": flag2, "task4": flag4}

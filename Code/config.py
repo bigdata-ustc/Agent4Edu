@@ -1,25 +1,23 @@
 import os
+from pathlib import Path
 
-# 项目根目录
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# 数据集路径
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
+DATA_PATH = Path(os.getenv("AGENT4EDU_DATA_PATH", PROJECT_ROOT / "data" / "demo"))
+RESULT_PATH = Path(os.getenv("AGENT4EDU_RESULT_PATH", BASE_DIR / "simulation"))
 
-DATA_PATH = os.path.join(BASE_DIR, '../data/demo')
-# 结果路径
-RESULT_PATH = os.path.join(BASE_DIR, 'simulation')
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "")
 
-# OpenAI 配置
-OPENAI_API_KEY = ''
-
-# 模拟参数
 SIM_PARAMS = {
-    'memory_source':    'real',
-    'learning_effect':  'yes',
-    'forgetting_effect':'yes',
-    'reflection_choice':'yes',
-    'sim_strategy':     'performance',
-    'gpt_type':         0,  # 0: GPT-3.5, 1: GPT-4
-    'short_term_size':  5,
-    'long_term_thresh': 5,
-    'forget_lambda':    0.99
+    "memory_source": os.getenv("AGENT4EDU_MEMORY_SOURCE", "real"),
+    "learning_effect": os.getenv("AGENT4EDU_LEARNING_EFFECT", "yes"),
+    "forgetting_effect": os.getenv("AGENT4EDU_FORGETTING_EFFECT", "yes"),
+    "reflection_choice": os.getenv("AGENT4EDU_REFLECTION", "yes"),
+    "sim_strategy": os.getenv("AGENT4EDU_SIM_STRATEGY", "performance"),
+    "gpt_type": int(os.getenv("AGENT4EDU_GPT_TYPE", "0")),
+    "short_term_size": int(os.getenv("AGENT4EDU_SHORT_TERM_SIZE", "5")),
+    "long_term_thresh": int(os.getenv("AGENT4EDU_LONG_TERM_THRESH", "5")),
+    "forget_lambda": float(os.getenv("AGENT4EDU_FORGET_LAMBDA", "0.99")),
+    "llm_provider": os.getenv("AGENT4EDU_LLM_PROVIDER", "mock"),
 }
