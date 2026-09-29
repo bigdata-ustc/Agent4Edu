@@ -4,6 +4,9 @@ Official implementation for **Agent4Edu: Generating Learner Response Data by Gen
 
 Agent4Edu builds LLM-powered learner agents to simulate learner response data and problem-solving behaviors for intelligent education systems. The repository follows the paper pipeline: learner profile construction, memory construction, action simulation, and interaction with personalized learning tasks.
 
+## 欢迎加入教育智能体交流群～
+<img width="300" alt="教育智能体微信群" src="https://github.com/user-attachments/assets/e7b3597e-9cf9-48b7-824e-8445f0a15557" />
+
 ## Poster and Slides
 
 <p align="center">
@@ -19,9 +22,6 @@ Agent4Edu builds LLM-powered learner agents to simulate learner response data an
 <p align="center">
   <a href="Agent4Edu-Slide_web.pdf">View full slides</a>
 </p>
-
-## 欢迎教育智能体交流群～
-<img width="300" alt="教育智能体微信群" src="https://github.com/user-attachments/assets/e7b3597e-9cf9-48b7-824e-8445f0a15557" />
 
 ## Repository Structure
 
