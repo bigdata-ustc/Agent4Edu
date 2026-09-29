@@ -20,6 +20,9 @@ Agent4Edu builds LLM-powered learner agents to simulate learner response data an
   <a href="Agent4Edu-Slide_web.pdf">View full slides</a>
 </p>
 
+## 欢迎教育智能体交流群～
+<img width="939" height="928" alt="521cf03c5f240adabe0e23f539ea4a66" src="https://github.com/user-attachments/assets/e7b3597e-9cf9-48b7-824e-8445f0a15557" />
+
 ## Repository Structure
 
 ```text
