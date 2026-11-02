@@ -20,7 +20,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    checkpoint = torch.load(args.checkpoint, map_location="cpu")
+    checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     dataset = StudentSequenceDataset(args.logs, checkpoint["num_exercises"], checkpoint["num_know"])
     _, _, _, all_data = dataset.split_by_student()
     loader = make_loader(all_data, batch_size=1, shuffle=False)
